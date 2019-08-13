@@ -9,18 +9,36 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-class IsAnswerBtn(QtWidgets.QPushButton):
-    def click(self, a):
 
+class ButtonBlock(QtWidgets.QWidget):
 
-def funcion(a):
-    print(str(a))
+    def __init__(self, *args):
+        super(QtWidgets.QWidget, self).__init__()
+        global nTeam
+        self.grid = QtWidgets.QGridLayout()
+        for g in range(nTeam):
+            pushButton = QtWidgets.QPushButton(self)
+            pushButton.setText("Команда " + str(g + 1))
+            pushButton.setCheckable(1)
+            pushButton.clicked.connect(self.make_calluser(g))
+            self.grid.addWidget(pushButton, g // 4, g % 4)
+
+        self.setLayout(self.grid)
+
+    def make_calluser(self, curT):
+        def calluser():
+            print(curT)
+        return calluser
+
+    def get(self):
+        return self.grid
+
 
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow, tours):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1027, 838)
+        MainWindow.resize(500, 500)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -32,25 +50,33 @@ class Ui_MainWindow(object):
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
         self.tabWidget.setObjectName("tabWidget")
 
-        count = 1
+        count = 0
         for i in tours:
+            global nTeam
+            nTeam = len(i.teamScore)
             tab = QtWidgets.QWidget()
             verticalLayout = QtWidgets.QVBoxLayout(tab)
             verticalLayout.setSizeConstraint(QtWidgets.QLayout.SetDefaultConstraint)
             tabWidget = QtWidgets.QTabWidget(tab)
             for j in range(i.countQ):
                 tabQuestion = QtWidgets.QWidget()
-                gridLayout = QtWidgets.QGridLayout(tabQuestion)
-                for g in range(len(i.teamScore)):
-                    pushButton = IsAnswerBtn(tabQuestion)
-                    pushButton.setText("Команда " + str(g+1))
-                    pushButton.setCheckable(1)
-                    pushButton.clicked.connect()
-                    gridLayout.addWidget(pushButton, int(g/4), g%4)
+                bt = ButtonBlock()
+                bt.setParent(tabQuestion)
+                # gridLayout = QtWidgets.QGridLayout(tabQuestion)
+                # for g in range(len(i.teamScore)):
+                #     pushButton = QtWidgets.QPushButton(tabQuestion)
+                #     pushButton.setText("Команда " + str(g+1))
+                #     pushButton.setCheckable(1)
+                #     ListT.append(pushButton)
+                #     pushButton.clicked.connect(OnClick)
+                #
+                #     gridLayout.addWidget(pushButton, g // 4, g%4)
 
                 tabWidget.addTab(tabQuestion, str(j+1) + " вопрос")
+
+
             verticalLayout.addWidget(tabWidget)
-            self.tabWidget.addTab(tab, str(count) + " тур")
+            self.tabWidget.addTab(tab, str(count+1) + " тур")
             count += 1
 
 
@@ -70,6 +96,7 @@ class Ui_MainWindow(object):
         self.tabWidget.setCurrentIndex(0)
         # self.tabWidget_2.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
 
 
 
