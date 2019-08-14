@@ -1,7 +1,8 @@
 import sys
-from ui.test import *
+from ui.inputans import *
 from PyQt5 import QtCore, QtGui, QtWidgets
 import tour
+
 
 class MyWin(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
@@ -9,13 +10,10 @@ class MyWin(QtWidgets.QMainWindow):
         self.ui = Ui_MainWindow()
         tours = [tour.Tour(12, 3), tour.Tour(12, 2), tour.Tour(12, 6)]
         self.ui.setupUi(self, tours)
-        #self.ui.pushButton.clicked.connect(self.PoemCheck)
+        # self.ui.pushButton.clicked.connect(self.PoemCheck)
 
 
-
-
-
-if __name__== "__main__":
+if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     myapp = MyWin()
     myapp.show()

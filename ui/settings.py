@@ -7,15 +7,19 @@
 # WARNING! All changes made in this file will be lost!
 
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtWidgets
 
 
 class Ui_MainWindow(object):
+    # def btnClicked(self):
+    #    print(123)
+    #    print(self.textEdit.toPlainText())
+
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(784, 985)
         MainWindow.setStyleSheet("background-color: rgb(246, 255, 252);\n"
-"")
+                                 "")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.label = QtWidgets.QLabel(self.centralwidget)
@@ -40,7 +44,7 @@ class Ui_MainWindow(object):
         self.label_4 = QtWidgets.QLabel(self.centralwidget)
         self.label_4.setGeometry(QtCore.QRect(50, 110, 71, 21))
         self.label_4.setStyleSheet("font: 12pt \"MS Shell Dlg 2\";\n"
-"font: 10pt \"MS Shell Dlg 2\";")
+                                   "font: 10pt \"MS Shell Dlg 2\";")
         self.label_4.setObjectName("label_4")
         self.label_5 = QtWidgets.QLabel(self.centralwidget)
         self.label_5.setGeometry(QtCore.QRect(160, 110, 91, 21))
@@ -66,7 +70,7 @@ class Ui_MainWindow(object):
         self.label_7 = QtWidgets.QLabel(self.centralwidget)
         self.label_7.setGeometry(QtCore.QRect(50, 180, 71, 21))
         self.label_7.setStyleSheet("font: 12pt \"MS Shell Dlg 2\";\n"
-"font: 10pt \"MS Shell Dlg 2\";")
+                                   "font: 10pt \"MS Shell Dlg 2\";")
         self.label_7.setObjectName("label_7")
         self.lineEdit_4 = QtWidgets.QLineEdit(self.centralwidget)
         self.lineEdit_4.setGeometry(QtCore.QRect(50, 210, 71, 31))
@@ -91,7 +95,7 @@ class Ui_MainWindow(object):
         self.label_10 = QtWidgets.QLabel(self.centralwidget)
         self.label_10.setGeometry(QtCore.QRect(50, 250, 71, 21))
         self.label_10.setStyleSheet("font: 12pt \"MS Shell Dlg 2\";\n"
-"font: 10pt \"MS Shell Dlg 2\";")
+                                    "font: 10pt \"MS Shell Dlg 2\";")
         self.label_10.setObjectName("label_10")
         self.lineEdit_6 = QtWidgets.QLineEdit(self.centralwidget)
         self.lineEdit_6.setGeometry(QtCore.QRect(50, 280, 71, 31))
@@ -116,7 +120,7 @@ class Ui_MainWindow(object):
         self.label_13 = QtWidgets.QLabel(self.centralwidget)
         self.label_13.setGeometry(QtCore.QRect(50, 320, 71, 21))
         self.label_13.setStyleSheet("font: 12pt \"MS Shell Dlg 2\";\n"
-"font: 10pt \"MS Shell Dlg 2\";")
+                                    "font: 10pt \"MS Shell Dlg 2\";")
         self.label_13.setObjectName("label_13")
         self.lineEdit_8 = QtWidgets.QLineEdit(self.centralwidget)
         self.lineEdit_8.setGeometry(QtCore.QRect(50, 350, 71, 31))
@@ -133,7 +137,7 @@ class Ui_MainWindow(object):
         self.label_16 = QtWidgets.QLabel(self.centralwidget)
         self.label_16.setGeometry(QtCore.QRect(390, 110, 71, 21))
         self.label_16.setStyleSheet("font: 12pt \"MS Shell Dlg 2\";\n"
-"font: 10pt \"MS Shell Dlg 2\";")
+                                    "font: 10pt \"MS Shell Dlg 2\";")
         self.label_16.setObjectName("label_16")
         self.label_17 = QtWidgets.QLabel(self.centralwidget)
         self.label_17.setGeometry(QtCore.QRect(470, 140, 21, 21))
@@ -158,7 +162,7 @@ class Ui_MainWindow(object):
         self.label_19 = QtWidgets.QLabel(self.centralwidget)
         self.label_19.setGeometry(QtCore.QRect(390, 180, 71, 21))
         self.label_19.setStyleSheet("font: 12pt \"MS Shell Dlg 2\";\n"
-"font: 10pt \"MS Shell Dlg 2\";")
+                                    "font: 10pt \"MS Shell Dlg 2\";")
         self.label_19.setObjectName("label_19")
         self.label_20 = QtWidgets.QLabel(self.centralwidget)
         self.label_20.setGeometry(QtCore.QRect(470, 210, 21, 21))
@@ -183,7 +187,7 @@ class Ui_MainWindow(object):
         self.label_22 = QtWidgets.QLabel(self.centralwidget)
         self.label_22.setGeometry(QtCore.QRect(390, 250, 71, 21))
         self.label_22.setStyleSheet("font: 12pt \"MS Shell Dlg 2\";\n"
-"font: 10pt \"MS Shell Dlg 2\";")
+                                    "font: 10pt \"MS Shell Dlg 2\";")
         self.label_22.setObjectName("label_22")
         self.label_23 = QtWidgets.QLabel(self.centralwidget)
         self.label_23.setGeometry(QtCore.QRect(470, 280, 21, 21))
@@ -208,7 +212,7 @@ class Ui_MainWindow(object):
         self.label_25 = QtWidgets.QLabel(self.centralwidget)
         self.label_25.setGeometry(QtCore.QRect(390, 320, 71, 21))
         self.label_25.setStyleSheet("font: 12pt \"MS Shell Dlg 2\";\n"
-"font: 10pt \"MS Shell Dlg 2\";")
+                                    "font: 10pt \"MS Shell Dlg 2\";")
         self.label_25.setObjectName("label_25")
         self.label_26 = QtWidgets.QLabel(self.centralwidget)
         self.label_26.setGeometry(QtCore.QRect(470, 350, 21, 21))
@@ -242,7 +246,7 @@ class Ui_MainWindow(object):
         self.lineEdit_18.setGeometry(QtCore.QRect(50, 870, 221, 31))
         self.lineEdit_18.setObjectName("lineEdit_18")
         self.pushButton = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton.setGeometry(QtCore.QRect(310, 930, 111, 31))
+        self.pushButton.setGeometry(QtCore.QRect(610, 400, 111, 31))
         self.pushButton.setObjectName("pushButton")
         self.textEdit = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit.setGeometry(QtCore.QRect(50, 540, 351, 221))
@@ -251,6 +255,8 @@ class Ui_MainWindow(object):
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
+
+        # elf.pushButton.clicked.connect(self.btnClicked)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
