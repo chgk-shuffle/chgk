@@ -9,7 +9,7 @@ class MyWin(QtWidgets.QMainWindow):
         self.ui = Ui_MainWindow()
         tours = [tour.Tour(12, 3), tour.Tour(12, 2), tour.Tour(12, 6)]
         self.ui.setupUi(self, tours)
-        #self.ui.pushButton.clicked.connect(self.PoemCheck)
+
 
 
 

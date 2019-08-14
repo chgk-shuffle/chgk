@@ -1,13 +1,10 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'test.ui'
-#
-# Created by: PyQt5 UI code generator 5.13.0
-#
-# WARNING! All changes made in this file will be lost!
-
-
 from PyQt5 import QtCore, QtGui, QtWidgets
+import sqlite3
+
+con = sqlite3.connect('db')
+cur = con.cursor()
+
+con.commit()
 
 
 class ButtonBlock(QtWidgets.QWidget):
@@ -27,16 +24,25 @@ class ButtonBlock(QtWidgets.QWidget):
 
     def make_calluser(self, curT):
         def calluser():
-            print(curT)
+            cur.execute(f"""
+                UPDATE Team 
+                SET score = score + 1 
+                WHERE id_table = {curT}
+                """)
+            con.commit()
+
+
         return calluser
 
     def get(self):
         return self.grid
 
 
-
 class Ui_MainWindow(object):
+
     def setupUi(self, MainWindow, tours):
+        global Tours
+        Tours = tours
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(500, 500)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -51,7 +57,7 @@ class Ui_MainWindow(object):
         self.tabWidget.setObjectName("tabWidget")
 
         count = 0
-        for i in tours:
+        for i in Tours:
             global nTeam
             nTeam = len(i.teamScore)
             tab = QtWidgets.QWidget()
@@ -62,23 +68,12 @@ class Ui_MainWindow(object):
                 tabQuestion = QtWidgets.QWidget()
                 bt = ButtonBlock()
                 bt.setParent(tabQuestion)
-                # gridLayout = QtWidgets.QGridLayout(tabQuestion)
-                # for g in range(len(i.teamScore)):
-                #     pushButton = QtWidgets.QPushButton(tabQuestion)
-                #     pushButton.setText("Команда " + str(g+1))
-                #     pushButton.setCheckable(1)
-                #     ListT.append(pushButton)
-                #     pushButton.clicked.connect(OnClick)
-                #
-                #     gridLayout.addWidget(pushButton, g // 4, g%4)
 
-                tabWidget.addTab(tabQuestion, str(j+1) + " вопрос")
-
+                tabWidget.addTab(tabQuestion, str(j + 1) + " вопрос")
 
             verticalLayout.addWidget(tabWidget)
-            self.tabWidget.addTab(tab, str(count+1) + " тур")
+            self.tabWidget.addTab(tab, str(count + 1) + " тур")
             count += 1
-
 
         self.verticalLayout.addWidget(self.tabWidget, 8)
         self.textBrowser.raise_()
@@ -97,17 +92,15 @@ class Ui_MainWindow(object):
         # self.tabWidget_2.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-
-
-
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.textBrowser.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:7.8pt; font-weight:400; font-style:normal;\">\n"
-"<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:24pt; font-weight:600;\">Ввод результатов</span></p></body></html>"))
+        self.textBrowser.setHtml(_translate("MainWindow",
+                                            "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                            "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                            "p, li { white-space: pre-wrap; }\n"
+                                            "</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:7.8pt; font-weight:400; font-style:normal;\">\n"
+                                            "<p align=\"center\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:24pt; font-weight:600;\">Ввод результатов</span></p></body></html>"))
         # self.pushButton_4.setText(_translate("MainWindow", "PushButton"))
         # self.pushButton_3.setText(_translate("MainWindow", "PushButton"))
         # self.pushButton.setText(_translate("MainWindow", "PushButton"))
