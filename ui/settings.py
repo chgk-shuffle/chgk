@@ -7,28 +7,25 @@
 # WARNING! All changes made in this file will be lost!
 
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class Ui_MainWindow(object):
-    # def btnClicked(self):
-    #    print(123)
-    #    print(self.textEdit.toPlainText())
-
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(784, 985)
+        MainWindow.resize(780, 985)
+        MainWindow.setMaximumSize(QtCore.QSize(784, 16777215))
         MainWindow.setStyleSheet("background-color: rgb(246, 255, 252);\n"
                                  "")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(320, -10, 231, 61))
-        self.label.setStyleSheet("font: 28pt \"MS Shell Dlg 2\";")
+        self.label.setGeometry(QtCore.QRect(330, -10, 231, 61))
+        self.label.setStyleSheet("font: 24pt \"MS Shell Dlg 2\";")
         self.label.setObjectName("label")
         self.label_2 = QtWidgets.QLabel(self.centralwidget)
-        self.label_2.setGeometry(QtCore.QRect(10, 60, 671, 41))
-        self.label_2.setStyleSheet("font: 20pt \"MS Shell Dlg 2\";")
+        self.label_2.setGeometry(QtCore.QRect(10, 40, 671, 41))
+        self.label_2.setStyleSheet("font: 18pt \"MS Shell Dlg 2\";")
         self.label_2.setObjectName("label_2")
         self.lineEdit = QtWidgets.QLineEdit(self.centralwidget)
         self.lineEdit.setGeometry(QtCore.QRect(50, 140, 71, 31))
@@ -231,32 +228,30 @@ class Ui_MainWindow(object):
         self.lineEdit_16.setGeometry(QtCore.QRect(500, 350, 71, 31))
         self.lineEdit_16.setObjectName("lineEdit_16")
         self.label_27 = QtWidgets.QLabel(self.centralwidget)
-        self.label_27.setGeometry(QtCore.QRect(10, 460, 551, 31))
-        self.label_27.setStyleSheet("font: 20pt \"MS Shell Dlg 2\";")
+        self.label_27.setGeometry(QtCore.QRect(10, 390, 551, 31))
+        self.label_27.setStyleSheet("font: 18pt \"MS Shell Dlg 2\";")
         self.label_27.setObjectName("label_27")
         self.label_28 = QtWidgets.QLabel(self.centralwidget)
-        self.label_28.setGeometry(QtCore.QRect(50, 510, 171, 21))
+        self.label_28.setGeometry(QtCore.QRect(50, 430, 171, 21))
         self.label_28.setStyleSheet("font: 10pt \"MS Shell Dlg 2\";")
         self.label_28.setObjectName("label_28")
         self.label_29 = QtWidgets.QLabel(self.centralwidget)
-        self.label_29.setGeometry(QtCore.QRect(10, 820, 621, 31))
-        self.label_29.setStyleSheet("font: 20pt \"MS Shell Dlg 2\";")
+        self.label_29.setGeometry(QtCore.QRect(10, 620, 621, 31))
+        self.label_29.setStyleSheet("font: 18pt \"MS Shell Dlg 2\";")
         self.label_29.setObjectName("label_29")
-        self.lineEdit_18 = QtWidgets.QLineEdit(self.centralwidget)
-        self.lineEdit_18.setGeometry(QtCore.QRect(50, 870, 221, 31))
-        self.lineEdit_18.setObjectName("lineEdit_18")
+        self.lineEditNumParicipants = QtWidgets.QLineEdit(self.centralwidget)
+        self.lineEditNumParicipants.setGeometry(QtCore.QRect(50, 660, 221, 31))
+        self.lineEditNumParicipants.setObjectName("lineEditNumParicipants")
         self.pushButton = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton.setGeometry(QtCore.QRect(610, 400, 111, 31))
+        self.pushButton.setGeometry(QtCore.QRect(270, 700, 111, 31))
         self.pushButton.setObjectName("pushButton")
-        self.textEdit = QtWidgets.QTextEdit(self.centralwidget)
-        self.textEdit.setGeometry(QtCore.QRect(50, 540, 351, 221))
-        self.textEdit.setObjectName("textEdit")
+        self.textEditParticipants = QtWidgets.QTextEdit(self.centralwidget)
+        self.textEditParticipants.setGeometry(QtCore.QRect(50, 450, 361, 161))
+        self.textEditParticipants.setObjectName("textEditParticipants")
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
-
-        # elf.pushButton.clicked.connect(self.btnClicked)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
