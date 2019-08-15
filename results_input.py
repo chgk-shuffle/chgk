@@ -22,14 +22,19 @@ class ButtonBlock(QtWidgets.QWidget):
 
     def make_calluser(self, curT):
         def calluser():
-            cur.execute(f"""UPDATE Team SET score = score + 1
+            sender = self.sender()
+            if sender.isChecked():
+                point = 1
+            else:
+                point = -1
+            cur.execute(f"""UPDATE Team SET score = score + {point}
                             WHERE id_table = {curT}""")
             con.commit()
 
         return calluser
 
     def get(self):
-        return self.grid
+        return self
 
 
 class MyWin(QtWidgets.QMainWindow):
@@ -39,6 +44,7 @@ class MyWin(QtWidgets.QMainWindow):
         tours = [tour.Tour(12, 3), tour.Tour(12, 2), tour.Tour(12, 6)]
         self.ui.setupUi(self)
 
+        global cur
         count = 0
         for i in tours:
             global nTeam
@@ -49,25 +55,57 @@ class MyWin(QtWidgets.QMainWindow):
             tabWidget = QtWidgets.QTabWidget(tab)
             for j in range(i.countQ):
                 tabQuestion = QtWidgets.QWidget()
+                VerL = QtWidgets.QVBoxLayout(tabQuestion)
                 bt = ButtonBlock()
-                bt.setParent(tabQuestion)
+                VerL.addWidget(bt)
 
                 tabWidget.addTab(tabQuestion, str(j + 1) + " вопрос")
+
+            VerL = QtWidgets.QVBoxLayout()
+            DistribTable = QtWidgets.QTableWidget()
+            DistribTable.setColumnCount(2)
+            DistribTable.setRowCount(nTeam)
+            DistribTable.setHorizontalHeaderLabels(['Номер команды', 'Кол-во очков'])
+            ResInTour = cur.execute("""
+                                    SELECT name, score FROM User
+                                    ORDER BY score DESC
+                                    """).fetchall()
+            for i in range(len(ResInTour)):
+                for j in range(len(ResInTour[i])):
+                    DistribTable.setItem(i, j, QtWidgets.QTableWidgetItem(str(ResInTour[i][j])))
+            VerL.addWidget(DistribTable)
+            tabWidget.addTab(VerL, "Распределение")
+
 
             verticalLayout.addWidget(tabWidget)
             self.ui.tabWidget.addTab(tab, str(count + 1) + " тур")
             count += 1
+        TabFinallRes = QtWidgets.QTableWidget()
+        TabFinallRes.setColumnCount(2)
 
+        TabFinallRes.setRowCount(cur.execute("""
+                                        SELECT count(*) FROM User
+                                        """).fetchone()[0])
+        TabFinallRes.setHorizontalHeaderLabels(['Фамилия и Имя', 'Кол-во очков'])
+        FinallRes = cur.execute("""
+                        SELECT name, score FROM User
+                        ORDER BY score DESC
+                        """).fetchall()
+        for i in range(len(FinallRes)):
+            for j in range(len(FinallRes[i])):
+                TabFinallRes.setItem(i, j, QtWidgets.QTableWidgetItem(str(FinallRes[i][j])))
+        self.ui.tabWidget.addTab(TabFinallRes, "Итоги")
 
 if __name__ == "__main__":
     global con, cur
 
+    con = sqlite3.connect('db')
+    cur = con.cursor()
+    con.commit()
     app = QtWidgets.QApplication(sys.argv)
     myapp = MyWin()
     myapp.show()
 
-    con = sqlite3.connect('db')
-    cur = con.cursor()
-    con.commit()
+
 
     sys.exit(app.exec_())
