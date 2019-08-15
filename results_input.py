@@ -61,7 +61,7 @@ class MyWin(QtWidgets.QMainWindow):
 
                 tabWidget.addTab(tabQuestion, str(j + 1) + " вопрос")
 
-            VerL = QtWidgets.QVBoxLayout()
+            
             DistribTable = QtWidgets.QTableWidget()
             DistribTable.setColumnCount(2)
             DistribTable.setRowCount(nTeam)
@@ -73,8 +73,7 @@ class MyWin(QtWidgets.QMainWindow):
             for i in range(len(ResInTour)):
                 for j in range(len(ResInTour[i])):
                     DistribTable.setItem(i, j, QtWidgets.QTableWidgetItem(str(ResInTour[i][j])))
-            VerL.addWidget(DistribTable)
-            tabWidget.addTab(VerL, "Распределение")
+            tabWidget.addTab(DistribTable, "Распределение")
 
 
             verticalLayout.addWidget(tabWidget)
