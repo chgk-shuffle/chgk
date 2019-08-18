@@ -1,10 +1,10 @@
 import sys
 import tour
 import sqlite3
+from random import shuffle
 
 from ui.results_input import *
-from PyQt5 import QtCore, QtGui, QtWidgets
-
+from PyQt5 import QtCore, QtGui, QtWidgets, Qt
 
 class ButtonBlock(QtWidgets.QWidget):
     def __init__(self, *args):
@@ -48,19 +48,23 @@ class ButtonBlock(QtWidgets.QWidget):
     def get(self):
         return self
 
-
 class MyWin(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.ui = Ui_MainWindow()
-        self.tours = [tour.Tour(12, 3, 0), tour.Tour(12, 2, 1), tour.Tour(12, 6, 2)]
         self.ui.setupUi(self)
         self.curRound = 0
         self.curQ = 0
         global cur, TabFinallRes
         global ResInTourTab
+
+        listUsers = cur.execute("""SELECT name FROM User""").fetchall()
+
         ResInTourTab = []
         count = 0
+        teamsS = foo(cur.execute("""SELECT count(*) FROM User""").fetchone()[0], 3)
+        quantityTeam = len(teamsS)
+        self.tours = [tour.Tour(quantityTeam, 3, 0), tour.Tour(quantityTeam, 2, 1), tour.Tour(quantityTeam, 6, 2)]
         for i in self.tours:
             global nTeam
             nTeam = len(i.teamScore)
@@ -68,7 +72,22 @@ class MyWin(QtWidgets.QMainWindow):
             verticalLayout = QtWidgets.QVBoxLayout(tab)
             verticalLayout.setSizeConstraint(QtWidgets.QLayout.SetDefaultConstraint)
             tabWidget = QtWidgets.QTabWidget(tab)
-            tabWidget.addTab(QtWidgets.QTabWidget(), "Распределение")
+
+            DistribTab = QtWidgets.QTableWidget(nTeam, 1)
+            DistribTab.setHorizontalHeaderLabels(["Участники"])
+            index = 0
+            shuffle(listUsers)
+
+            for j in range(0, len(listUsers), teamsS[index]):
+                string = '\n'
+                for v in range(j, j + teamsS[index]):
+                    string += listUsers[v][0] + '\n'
+                DistribTab.setItem(index, 0, QtWidgets.QTableWidgetItem(string))
+                index += 1
+            DistribTab.resizeColumnsToContents()
+            DistribTab.resizeRowsToContents()
+            tabWidget.addTab(DistribTab, "Распределение")
+
             for j in range(i.countQ):
                 tabQuestion = QtWidgets.QWidget()
                 VerL = QtWidgets.QVBoxLayout(tabQuestion)
@@ -79,10 +98,8 @@ class MyWin(QtWidgets.QMainWindow):
             tabWidget.currentChanged.connect(self.onChangeResTourTab)
             ResInTourTab.append(QtWidgets.QTableWidget(nTeam, i.countQ + 2))
             ResInTourTab[i.id].setHorizontalHeaderLabels(
-                ['Номер команды'] + ['Вопрос ' + str(g) for g in range(i.countQ)] + ['Сумма'])
-
+                ['Номер команды'] + ['Вопрос ' + str(g + 1) for g in range(i.countQ)] + ['Сумма'])
             tabWidget.addTab(ResInTourTab[i.id], "Итоги тура")
-            # self.LoadResTour(i.countQ)
             verticalLayout.addWidget(tabWidget)
             self.ui.tabWidget.addTab(tab, str(count + 1) + " тур")
             count += 1
@@ -93,10 +110,14 @@ class MyWin(QtWidgets.QMainWindow):
                                         SELECT count(*) FROM User
                                         """).fetchone()[0], 2)
         TabFinallRes.setHorizontalHeaderLabels(['Фамилия и Имя', 'Кол-во очков'])
+
         TabFinallRes.horizontalHeader().sectionClicked.connect(self.onChangeHeadResTab)
         TabFinallRes.horizontalHeader().sectionDoubleClicked.connect(self.onChangeHeadResTab2)
         self.LoadRes(0)
+
         self.ui.tabWidget.addTab(TabFinallRes, "Итоги")
+
+
 
     def onChangeTourTab(self, i):
         self.curRound = i
@@ -136,9 +157,11 @@ class MyWin(QtWidgets.QMainWindow):
         ResInTourInTable.sort(key=lambda team: team[nQ + 1], reverse=True)
         for j in range(len(ResInTourInTable)):
             for k in range(len(ResInTourInTable[j])):
-                ResInTourTab[self.curRound].setItem(j, k, QtWidgets.QTableWidgetItem(
+                item = QtWidgets.QTableWidgetItem(
                     str(ResInTourInTable[j][k]) if (k == 0) or (k == nQ + 1) else '+' if ResInTourInTable[j][
-                                                                                             k] == 1 else '-'))
+                                                                                             k] == 1 else '-')
+                item.setTextAlignment(QtCore.Qt.AlignCenter)
+                ResInTourTab[self.curRound].setItem(j, k, item)
 
     def LoadRes(self, type):
         if type == 0:
@@ -157,15 +180,33 @@ class MyWin(QtWidgets.QMainWindow):
                                 """).fetchall()
         for i in range(len(FinallRes)):
             for j in range(len(FinallRes[i])):
-                TabFinallRes.setItem(i, j, QtWidgets.QTableWidgetItem(str(FinallRes[i][j])))
+                item = QtWidgets.QTableWidgetItem(str(FinallRes[i][j]))
+                item.setTextAlignment(QtCore.Qt.AlignCenter)
+                TabFinallRes.setItem(i, j, item)
+        TabFinallRes.resizeColumnsToContents()
 
+def foo(quantityUser, sizeTeam):
+    teamsS = []
+    a = [-1 for _ in range(0, quantityUser + 1)]
+    a[0] = 0
+    while a[quantityUser] == -1:
+        for v in range(0, quantityUser - sizeTeam + 1):
+            if a[v] != -1:
+                a[v + sizeTeam] = max(sizeTeam, a[v + sizeTeam])
+        sizeTeam -= 1
+    index = quantityUser
+    CurSizeTeam = a[index]
+    while CurSizeTeam != 0:
+        teamsS.append(CurSizeTeam)
+        index -= CurSizeTeam
+        CurSizeTeam = a[index]
+    return teamsS
 
 if __name__ == "__main__":
     global con, cur
     con = sqlite3.connect('db')
     cur = con.cursor()
     con.commit()
-    print(QtWidgets.QStyleFactory.keys())
     app = QtWidgets.QApplication(sys.argv)
     app.setStyle('Fusion')
     myapp = MyWin()
