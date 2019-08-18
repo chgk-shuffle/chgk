@@ -9,7 +9,13 @@ import sys
 
 class SettingsWindows(QtWidgets.QMainWindow):
     def save_settings(self):
-        # TODO clear all db
+
+        cur.execute("DELETE FROM User")
+        cur.execute("DELETE FROM Team_size")
+        cur.execute("DELETE FROM Team")
+        cur.execute("DELETE FROM Round")
+        cur.execute("DELETE FROM Question")
+        con.commit()
 
         round_one_start = self.ui.lineEdit.text()
         round_one_end = self.ui.lineEdit_2.text()
