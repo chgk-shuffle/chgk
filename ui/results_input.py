@@ -17,6 +17,9 @@ class Ui_MainWindow(object):
         self.tabWidget.setObjectName("tabWidget")
 
         self.verticalLayout.addWidget(self.tabWidget, 8)
+        self.btnPrint = QtWidgets.QPushButton()
+        self.btnPrint.setText("Подготовить файл для печати")
+        self.verticalLayout.addWidget(self.btnPrint)
         self.textBrowser.raise_()
         self.tabWidget.raise_()
         MainWindow.setCentralWidget(self.centralwidget)

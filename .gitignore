@@ -5,4 +5,8 @@ ui/__pycache__/
 
 # Extenstions
 **.pyc
+<<<<<<< HEAD
 *.py[cod]
+=======
+*.py[cod]
+>>>>>>> feature/settings
