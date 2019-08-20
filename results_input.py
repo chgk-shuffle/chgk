@@ -61,7 +61,8 @@ class MyWin(QtWidgets.QMainWindow):
         QtWidgets.QWidget.__init__(self, parent, QtCore.Qt.Window)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.ui.btnPrint.clicked.connect(self.PrintRealList)
+        self.ui.btnPrint1.clicked.connect(self.PrintRealList1)
+        self.ui.btnPrint2.clicked.connect(self.PrintRealList2)
         self.curRound = 0
         self.curQ = 0
         global TabFinallRes
@@ -80,6 +81,7 @@ class MyWin(QtWidgets.QMainWindow):
         for i in Round_list:
             self.tours.append(tour.Tour(quantityTeam, i[3] - i[2] + 1, i[0], i[1]))
         self.finall_distrib = []
+
         for i in self.tours:
             global nTeam
             nTeam = len(i.teamScore)
@@ -141,10 +143,12 @@ class MyWin(QtWidgets.QMainWindow):
         TabFinallRes.horizontalHeader().sectionClicked.connect(self.onChangeHeadResTab)
         TabFinallRes.horizontalHeader().sectionDoubleClicked.connect(self.onChangeHeadResTab2)
         self.LoadRes(0)
-
         self.ui.tabWidget.addTab(TabFinallRes, "Итоги")
 
+        self.ui.tabWidget.addTab(QtWidgets.QTabWidget(), 'Справка')
+
     def onChangeTourTab(self, i):
+        i -= 1
         self.curRound = i
         if i == len(self.tours):
             self.LoadRes(0)
@@ -184,7 +188,7 @@ class MyWin(QtWidgets.QMainWindow):
             for k in range(len(ResInTourInTable[j])):
                 item = QtWidgets.QTableWidgetItem(
                     'команда ' + str(ResInTourInTable[j][k]) if (k == 0) else str(ResInTourInTable[j][k]) if (
-                                k == nQ + 1) else '+' if ResInTourInTable[j][k] == 1 else '-')
+                            k == nQ + 1) else '+' if ResInTourInTable[j][k] == 1 else '-')
                 item.setTextAlignment(QtCore.Qt.AlignCenter)
                 ResInTourTab[self.curRound].setItem(j, k, item)
 
@@ -210,7 +214,7 @@ class MyWin(QtWidgets.QMainWindow):
                 TabFinallRes.setItem(i, j, item)
         TabFinallRes.resizeColumnsToContents()
 
-    def PrintRealList(self):
+    def PrintRealList1(self):
         document = Document()
         head = document.add_heading('Распределение участников', 0)
         head.alignment = 1
@@ -223,12 +227,16 @@ class MyWin(QtWidgets.QMainWindow):
             hdr_cells[2].text = 'Участники'
             for j in range(len(self.tours)):
                 row_cells_tour = table.add_row().cells
+
                 row_cells_tour[1].text = str(j + 1)
                 string = self.finall_distrib[j][i]
-                row_cells_tour[2].text = string[1:len(string) - 1]
+                row_cells_tour[2].text = string[1:].replace('\n', '; ')
 
         document.add_page_break()
         document.save('demo.docx')
+
+    def PrintRealList2(self):
+        print('sfdasdf')
 
 
 def foo(quantityUser, sizeTeam):
