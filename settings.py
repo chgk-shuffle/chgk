@@ -5,6 +5,7 @@ from PyQt5 import QtWidgets
 
 from ui.settings import Ui_MainWindow
 import sys
+import results_input
 
 
 class SettingsWindows(QtWidgets.QMainWindow):
@@ -33,9 +34,9 @@ class SettingsWindows(QtWidgets.QMainWindow):
         round_eight_start = self.ui.lineEdit_15.text()
         round_eight_end = self.ui.lineEdit_16.text()
         names = (self.ui.textEditParticipants.toPlainText()).split('\n')
-#        print(names)
+        #        print(names)
         size = int(self.ui.lineEditNumParicipants.text())
-#        print(size)
+        #        print(size)
         combo_box = self.ui.comboBox.currentText()
         combo_box_2 = self.ui.comboBox_2.currentText()
         combo_box_3 = self.ui.comboBox_3.currentText()
@@ -72,29 +73,32 @@ class SettingsWindows(QtWidgets.QMainWindow):
                 type = 1
             else:
                 type = 2
-            q = f"INSERT INTO Round (start, end, type) VALUES ({a}, {b}, {type});"
+            q = f"INSERT INTO Round VALUES ({i}, {type}, {a}, {b});"
             cur.execute(q)
             rounds_cnt += 1
-        cur.execute(f"INSERT INTO Team_size (id) VALUES ({size});")
-        for tabel_id in range(0, math.ceil(len(names) / size)):
+        cur.execute(f"INSERT INTO Team_size (id) VALUES ({size})")
+        for tabel_id in range(0, len(results_input.foo(len(names), size))):
             for round_id in range(0, rounds_cnt):
                 start_round = int(start[round_id])
                 end_round = int(end[round_id])
-                for quest_num in range(start_round - 1, end_round):
+                for quest_num in range(end_round - start_round + 1):
                     cur.execute(
                         f"INSERT INTO Question (id_table, id_round, question_number, point) VALUES ({tabel_id}, {round_id}, {quest_num}, 0);")
         con.commit()
-
-
-
+        self.new_win()
 
     def __init__(self):
         super(SettingsWindows, self).__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.ui.pushButton.clicked.connect(self.save_settings)
 
         self.ui.pushButton.clicked.connect(self.save_settings)
 
+    def new_win(self):
+        self.res = results_input.MyWin()
+        self.res.show()
+        self.hide()
 
 if __name__ == "__main__":
     global con, cur
