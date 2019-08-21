@@ -4,6 +4,10 @@ import sqlite3
 from random import shuffle
 from docx import Document
 from docx.shared import Inches
+import psycopg2
+import sqlite3
+import urllib.parse as urlparse
+import os
 
 from ui.results_input import *
 from PyQt5 import QtCore, QtGui, QtWidgets, Qt
@@ -34,16 +38,16 @@ class ButtonBlock(QtWidgets.QWidget):
                 point1 = 1
             else:
                 point1 = -1
-            cur.execute(f"""UPDATE Team SET score = score + {point1}
-                            WHERE id_table = {curT}""")
-            cur.execute(f"""UPDATE User SET score = score + {point1}
-                            WHERE id_user IN (SELECT id_user FROM Team
+            cur.execute(f'''UPDATE "Team" SET score = score + {point1}
+                            WHERE id_table = {curT}''')
+            cur.execute(f'''UPDATE "User" SET score = score + {point1}
+                            WHERE id_user IN (SELECT id_user FROM "Team"
                                                 WHERE id_table = {curT}
                                                 AND id_round = {sender.tour}
-                                                )""")
-            cur.execute(f"""UPDATE Question SET point = {1 if point1 == 1 else 0}
+                                                )''')
+            cur.execute(f'''UPDATE "Question" SET point = {1 if point1 == 1 else 0}
                             WHERE id_round = {sender.tour} AND question_number = {sender.ques}
-                            AND id_table = {curT}""")
+                            AND id_table = {curT}''')
             con.commit()
 
         return calluser
@@ -55,9 +59,13 @@ class ButtonBlock(QtWidgets.QWidget):
 class MyWin(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         global con, cur
-        con = sqlite3.connect('db')
+        con = psycopg2.connect("dbname='def6ihrm3usufr' "
+                               "user='vwpffneyqlsshw'"
+                               "host='ec2-54-235-86-101.compute-1.amazonaws.com' "
+                               "password='1636d214d3260f0e48bc3ea4cbbd3912da56c3d6bad56c0b4dc05f360a2e4acc'"
+                               "port='5432'"
+                               )
         cur = con.cursor()
-        con.commit()
         QtWidgets.QWidget.__init__(self, parent, QtCore.Qt.Window)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -68,15 +76,21 @@ class MyWin(QtWidgets.QMainWindow):
         global TabFinallRes
         global ResInTourTab
 
-        listUsers = cur.execute("""SELECT name, id_user FROM User""").fetchall()
+        cur.execute('''SELECT name, id_user FROM "User"''')
+        listUsers = cur.fetchall()
 
         ResInTourTab = []
         count = 0
-        self.teamsS = foo(cur.execute("""SELECT count(*) FROM User""").fetchone()[0],
-                          cur.execute("""SELECT id FROM Team_size""").fetchall()[0][0])
+        cur.execute('''SELECT count(*) FROM "User"''')
+        a = cur.fetchone()[0]
+        cur.execute('''SELECT id FROM "Team_size"''')
+        b = cur.fetchall()[0][0]
+        self.teamsS = foo(a, b)
+
         quantityTeam = len(self.teamsS)
         self.tours = []
-        Round_list = cur.execute("""SELECT * FROM Round""").fetchall()
+        cur.execute('''SELECT * FROM "Round"''')
+        Round_list = cur.fetchall()
         print(Round_list)
         for i in Round_list:
             self.tours.append(tour.Tour(quantityTeam, i[3] - i[2] + 1, i[0], i[1]))
@@ -100,17 +114,19 @@ class MyWin(QtWidgets.QMainWindow):
             list_string = []
             for j in self.teamsS:
                 string = '\n'
+                # cur.execute(f'''UPDATE "Team" SET id_user = {listUsers[index][1]}
+                #             WHERE id_table = {lcount} AND id_round = {i.id}''')
                 for v in range(index, index + j):
                     string += listUsers[v][0] + '\n'
-                    cur.execute(f"""INSERT INTO Team
-                                    VALUES ({lcount}, {listUsers[v][1]}, {i.id}, 0)""")
+                    cur.execute(f'''INSERT INTO "Team"
+                                    VALUES ({lcount}, {listUsers[v][1]}, {i.id}, 0)''')
                 con.commit()
                 list_string.append(string)
                 DistribTab.setItem(lcount, 0, QtWidgets.QTableWidgetItem(string))
                 index += j
                 lcount += 1
             self.finall_distrib.append(list_string)
-            print(self.finall_distrib)
+
             DistribTab.resizeColumnsToContents()
             DistribTab.resizeRowsToContents()
             tabWidget.addTab(DistribTab, "Распределение")
@@ -122,7 +138,9 @@ class MyWin(QtWidgets.QMainWindow):
                 VerL.addWidget(bt)
 
                 tabWidget.addTab(tabQuestion, str(j + 1) + " вопрос")
+
             tabWidget.currentChanged.connect(self.onChangeResTourTab)
+
             ResInTourTab.append(QtWidgets.QTableWidget(nTeam, i.countQ + 2))
             ResInTourTab[i.id].setHorizontalHeaderLabels(
                 ['Команды'] + ['Вопрос ' + str(g + 1) for g in range(i.countQ)] + ['Сумма'])
@@ -134,10 +152,10 @@ class MyWin(QtWidgets.QMainWindow):
             count += 1
 
         self.ui.tabWidget.currentChanged.connect(self.onChangeTourTab)
-
-        TabFinallRes = QtWidgets.QTableWidget(cur.execute("""
-                                        SELECT count(*) FROM User
-                                        """).fetchone()[0], 2)
+        cur.execute('''
+                                                SELECT count(*) FROM "User"
+                                                ''')
+        TabFinallRes = QtWidgets.QTableWidget(cur.fetchone()[0], 2)
         TabFinallRes.setHorizontalHeaderLabels(['Фамилия и Имя', 'Кол-во очков'])
 
         TabFinallRes.horizontalHeader().sectionClicked.connect(self.onChangeHeadResTab)
@@ -159,6 +177,8 @@ class MyWin(QtWidgets.QMainWindow):
         if i == self.tours[self.curRound].countQ + 1:
             self.LoadResTour(self.tours[self.curRound].countQ)
 
+
+
     def onChangeHeadResTab(self, logicalIndex):
         if logicalIndex == 0:
             self.LoadRes(-1)
@@ -172,11 +192,12 @@ class MyWin(QtWidgets.QMainWindow):
             self.LoadRes(2)
 
     def LoadResTour(self, nQ):
-        ResInTour = cur.execute(f"""
-                                            SELECT id_table, point, question_number FROM Question
+        cur.execute(f"""
+                                            SELECT id_table, point, question_number FROM "Question"
                                             WHERE id_round = {self.curRound}
                                             ORDER BY id_table
-                                            """).fetchall()
+                                            """)
+        ResInTour = cur.fetchall()
         ResInTourInTable = [[0 for g in range(nQ + 2)] for _ in range(nTeam)]
         for j in range(nTeam):
             ResInTourInTable[j][0] = j + 1
@@ -203,10 +224,11 @@ class MyWin(QtWidgets.QMainWindow):
             sort = "name DESC"
         else:
             sort = "score"
-        FinallRes = cur.execute(f"""
-                                SELECT name, score FROM User
+        cur.execute(f'''
+                                SELECT name, score FROM "User"
                                 ORDER BY {sort}
-                                """).fetchall()
+                                ''')
+        FinallRes = cur.fetchall()
         for i in range(len(FinallRes)):
             for j in range(len(FinallRes[i])):
                 item = QtWidgets.QTableWidgetItem(str(FinallRes[i][j]))
@@ -260,10 +282,17 @@ def foo(quantityUser, sizeTeam):
 
 if __name__ == "__main__":
     global con, cur
-    con = sqlite3.connect('db')
-    cur = con.cursor()
-    cur.execute("""DELETE FROM Team""")
-    con.commit()
+    try:
+        con = psycopg2.connect("dbname='def6ihrm3usufr' "
+                               "user='vwpffneyqlsshw'"
+                               "host='ec2-54-235-86-101.compute-1.amazonaws.com' "
+                               "password='1636d214d3260f0e48bc3ea4cbbd3912da56c3d6bad56c0b4dc05f360a2e4acc'"
+                               "port='5432'"
+                               )
+        cur = con.cursor()
+    except:
+        print("I am unable to connect to the database")
+
     app = QtWidgets.QApplication(sys.argv)
     app.setStyle('Fusion')
     myapp = MyWin()
