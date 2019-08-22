@@ -24,6 +24,9 @@ class ButtonBlock(QtWidgets.QWidget):
             pushButton = QtWidgets.QPushButton(self)
             pushButton.setText("Команда " + str(g + 1))
             pushButton.setCheckable(1)
+            font = pushButton.font()
+            font.setPointSize(25)
+            pushButton.setFont(font)
             pushButton.tour = tour
             pushButton.ques = ques
             pushButton.clicked.connect(self.make_calluser(g))
@@ -77,7 +80,7 @@ class MyWin(QtWidgets.QMainWindow):
         global ResInTourTab
 
         cur.execute('''SELECT name, id_user FROM "User"''')
-        listUsers = cur.fetchall()
+        self.listUsers = cur.fetchall()
 
         ResInTourTab = []
         count = 0
@@ -95,7 +98,7 @@ class MyWin(QtWidgets.QMainWindow):
         for i in Round_list:
             self.tours.append(tour.Tour(quantityTeam, i[3] - i[2] + 1, i[0], i[1]))
         self.finall_distrib = []
-
+        self.countResTour = [0, 0]
         for i in self.tours:
             global nTeam
             nTeam = len(i.teamScore)
@@ -103,23 +106,21 @@ class MyWin(QtWidgets.QMainWindow):
             verticalLayout = QtWidgets.QVBoxLayout(tab)
             verticalLayout.setSizeConstraint(QtWidgets.QLayout.SetDefaultConstraint)
             tabWidget = QtWidgets.QTabWidget(tab)
-
+            self.countResTour.append(0)
             DistribTab = QtWidgets.QTableWidget(nTeam, 1)
             DistribTab.setHorizontalHeaderLabels(["Участники"])
             index = 0
-            shuffle(listUsers)
+            shuffle(self.listUsers)
             shuffle(self.teamsS)
             lcount = 0
 
             list_string = []
             for j in self.teamsS:
                 string = '\n'
-                # cur.execute(f'''UPDATE "Team" SET id_user = {listUsers[index][1]}
-                #             WHERE id_table = {lcount} AND id_round = {i.id}''')
                 for v in range(index, index + j):
-                    string += listUsers[v][0] + '\n'
-                    cur.execute(f'''INSERT INTO "Team"
-                                    VALUES ({lcount}, {listUsers[v][1]}, {i.id}, 0)''')
+                    string += self.listUsers[v][0] + '\n'
+                    # cur.execute(f'''INSERT INTO "Team"
+                    #                 VALUES ({lcount}, {listUsers[v][1]}, {i.id}, 0)''')
                 con.commit()
                 list_string.append(string)
                 DistribTab.setItem(lcount, 0, QtWidgets.QTableWidgetItem(string))
@@ -131,31 +132,35 @@ class MyWin(QtWidgets.QMainWindow):
             DistribTab.resizeRowsToContents()
             tabWidget.addTab(DistribTab, "Распределение")
 
-            for j in range(i.countQ):
-                tabQuestion = QtWidgets.QWidget()
-                VerL = QtWidgets.QVBoxLayout(tabQuestion)
-                bt = ButtonBlock((i.id), j)
-                VerL.addWidget(bt)
+            if i.type == 1:
+                for j in range(i.countQ):
+                    tabQuestion = QtWidgets.QWidget()
+                    VerL = QtWidgets.QVBoxLayout(tabQuestion)
+                    bt = ButtonBlock((i.id), j)
+                    VerL.addWidget(bt)
 
-                tabWidget.addTab(tabQuestion, str(j + 1) + " вопрос")
+                    tabWidget.addTab(tabQuestion, str(j + 1) + " вопрос")
+                tabWidget.currentChanged.connect(self.onChangeResTourTabCHGK)
+                ResInTourTab.append(QtWidgets.QTableWidget(nTeam, i.countQ + 2))
+                ResInTourTab[i.id].setHorizontalHeaderLabels(
+                    ['Команды'] + ['Вопрос ' + str(g + 1) for g in range(i.countQ)] + ['Сумма'])
+            else:
+                tabWidget.currentChanged.connect(self.onChangeResTourTabQVIZ)
+                ResInTourTab.append(QtWidgets.QTableWidget(nTeam, 2))
+                ResInTourTab[i.id].setHorizontalHeaderLabels(
+                    ['Команды'] + ['Сумма'])
+                ResInTourTab[i.id].cellChanged.connect(self.OnChangedItemTable)
 
-            tabWidget.currentChanged.connect(self.onChangeResTourTab)
-
-            ResInTourTab.append(QtWidgets.QTableWidget(nTeam, i.countQ + 2))
-            ResInTourTab[i.id].setHorizontalHeaderLabels(
-                ['Команды'] + ['Вопрос ' + str(g + 1) for g in range(i.countQ)] + ['Сумма'])
             ResInTourTab[i.id].setItem(0, 0, QtWidgets.QTableWidgetItem('команда 13'))
             ResInTourTab[i.id].resizeColumnsToContents()
             tabWidget.addTab(ResInTourTab[i.id], "Итоги тура")
+            verticalLayout.addWidget(tabWidget)
             verticalLayout.addWidget(tabWidget)
             self.ui.tabWidget.addTab(tab, str(count + 1) + " тур")
             count += 1
 
         self.ui.tabWidget.currentChanged.connect(self.onChangeTourTab)
-        cur.execute('''
-                                                SELECT count(*) FROM "User"
-                                                ''')
-        TabFinallRes = QtWidgets.QTableWidget(cur.fetchone()[0], 2)
+        TabFinallRes = QtWidgets.QTableWidget(len(self.listUsers), 2)
         TabFinallRes.setHorizontalHeaderLabels(['Фамилия и Имя', 'Кол-во очков'])
 
         TabFinallRes.horizontalHeader().sectionClicked.connect(self.onChangeHeadResTab)
@@ -167,17 +172,20 @@ class MyWin(QtWidgets.QMainWindow):
 
     def onChangeTourTab(self, i):
         i -= 1
+        self.countResTour[self.curRound] = 0
         self.curRound = i
         if i == len(self.tours):
             self.LoadRes(0)
 
-    def onChangeResTourTab(self, i):
+    def onChangeResTourTabCHGK(self, i):
         if (i > 0) and (i < self.tours[self.curRound].countQ + 1):
             self.curQ = i
         if i == self.tours[self.curRound].countQ + 1:
-            self.LoadResTour(self.tours[self.curRound].countQ)
+            self.LoadResTourCHGK(self.tours[self.curRound].countQ)
 
-
+    def onChangeResTourTabQVIZ(self, i):
+        if i == 1:
+            self.LoadResTourQVIZ()
 
     def onChangeHeadResTab(self, logicalIndex):
         if logicalIndex == 0:
@@ -191,12 +199,12 @@ class MyWin(QtWidgets.QMainWindow):
         else:
             self.LoadRes(2)
 
-    def LoadResTour(self, nQ):
-        cur.execute(f"""
+    def LoadResTourCHGK(self, nQ):
+        cur.execute(f'''
                                             SELECT id_table, point, question_number FROM "Question"
                                             WHERE id_round = {self.curRound}
                                             ORDER BY id_table
-                                            """)
+                                            ''')
         ResInTour = cur.fetchall()
         ResInTourInTable = [[0 for g in range(nQ + 2)] for _ in range(nTeam)]
         for j in range(nTeam):
@@ -212,6 +220,28 @@ class MyWin(QtWidgets.QMainWindow):
                             k == nQ + 1) else '+' if ResInTourInTable[j][k] == 1 else '-')
                 item.setTextAlignment(QtCore.Qt.AlignCenter)
                 ResInTourTab[self.curRound].setItem(j, k, item)
+
+    def LoadResTourQVIZ(self):
+        cur.execute(f'''
+                                                            SELECT id_table, score FROM "Team"
+                                                            WHERE id_round = {self.curRound}
+                                                            ORDER BY id_table
+                                                            ''')
+        ResInTour = cur.fetchall()
+        last = -1
+        Res = []
+        for i, j in ResInTour:
+            if i != last:
+                Res.append([i, j])
+            last = i
+        Res.sort(key=lambda e: e[1], reverse=True)
+        for j in range(len(Res)):
+            item = QtWidgets.QTableWidgetItem('команда ' + str(Res[j][0] + 1))
+            item.setTextAlignment(QtCore.Qt.AlignCenter)
+            ResInTourTab[self.curRound].setItem(j, 0, item)
+            item = QtWidgets.QTableWidgetItem(str(Res[j][1]))
+            item.setTextAlignment(QtCore.Qt.AlignCenter)
+            ResInTourTab[self.curRound].setItem(j, 1, item)
 
     def LoadRes(self, type):
         if type == 0:
@@ -255,10 +285,49 @@ class MyWin(QtWidgets.QMainWindow):
                 row_cells_tour[2].text = string[1:].replace('\n', '; ')
 
         document.add_page_break()
-        document.save('demo.docx')
+        document.save('Распределение_по_турам.docx')
 
     def PrintRealList2(self):
-        print('sfdasdf')
+        document = Document()
+        cur.execute('SELECT id_user, name FROM "User"')
+        names = dict(cur.fetchall())
+        for id_user, name in names.items():
+            document.add_heading(f'{name}', level=1)
+            a = f'SELECT  id_user, id_table, id_round FROM "Team" WHERE id_user = {id_user} ORDER BY id_round'
+            cur.execute(a)
+            a = cur.fetchall()
+            print(a)
+            paragraph = document.add_paragraph()
+            for i in a:
+                lst = list(i)
+                tabel = lst[1]
+                round = lst[2]
+                p = paragraph.add_run(f'Раунд {round}, стол {tabel} -----> ')
+            p = document.add_paragraph(
+                '_______________________________________________________________________________________________________')
+        document.save('Маршрутный_лист.docx')
+
+    def OnChangedItemTable(self, x, y):
+        if self.countResTour[self.curRound] < len(self.teamsS):
+            if y == 1:
+                self.countResTour[self.curRound] += 1
+        else:
+            self.countResTour[self.curRound] = 0
+            if y == 1:
+                new_val = int(ResInTourTab[self.curRound].item(x, y).text())
+                cur.execute(f'''SELECT score FROM "Team"
+                                                                                WHERE id_table = {x}
+                                                                                AND id_round = {self.curRound}
+                                                                                ''')
+                prev = cur.fetchone()[0]
+                cur.execute(f'''UPDATE "Team" SET score = {new_val}
+                                            WHERE id_table = {x} AND id_round = {self.curRound}''')
+                cur.execute(f'''UPDATE "User" SET score = score + {new_val - prev}
+                                            WHERE id_user IN (SELECT id_user FROM "Team"
+                                                                WHERE id_table = {x}
+                                                                AND id_round = {self.curRound}
+                                                                )''')
+                con.commit()
 
 
 def foo(quantityUser, sizeTeam):

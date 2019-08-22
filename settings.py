@@ -32,9 +32,9 @@ class SettingsWindows(QtWidgets.QMainWindow):
         round_eight_start = self.ui.lineEdit_15.text()
         round_eight_end = self.ui.lineEdit_16.text()
         names = (self.ui.textEditParticipants.toPlainText()).split('\n')
-        #        print(names)
+        while "" in names:
+            names.remove('')
         size = int(self.ui.lineEditNumParicipants.text())
-        #        print(size)
         combo_box = self.ui.comboBox.currentText()
         combo_box_2 = self.ui.comboBox_2.currentText()
         combo_box_3 = self.ui.comboBox_3.currentText()
